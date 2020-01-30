@@ -1,0 +1,10 @@
+name: 'Storybook a11y action'
+description: 'Runs a11y tests against each story in Storybook'
+inputs:
+  directory:
+    description: 'Location of iframe.html'
+    required: true
+    default: './dist/demo/iframe.html'
+runs:
+  using: 'node12'
+  main: 'index.js'
