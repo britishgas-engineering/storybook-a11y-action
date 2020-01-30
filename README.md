@@ -5,3 +5,10 @@
 ### Directory
 
 **Required** The location of where your `iframe.html` is built
+
+
+## Build
+
+```
+$ ncc build index.js
+```

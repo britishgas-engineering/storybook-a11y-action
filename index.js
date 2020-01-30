@@ -7,7 +7,7 @@ const path = require('path');
 const os = require("os");
 
 const opts = ['--no-sandbox', '--disable-setuid-sandbox'];
-const localhost = `${process.env.GITHUB_WORKSPACE}/${core.getInput('directory')}`;
+const localhost = core.getInput('directory');
 
 console.log(localhost);
 

@@ -10778,7 +10778,7 @@ const path = __webpack_require__(622);
 const os = __webpack_require__(87);
 
 const opts = ['--no-sandbox', '--disable-setuid-sandbox'];
-const localhost = `${process.env.GITHUB_WORKSPACE}/${core.getInput('directory')}`;
+const localhost = core.getInput('directory');
 
 console.log(localhost);
 
