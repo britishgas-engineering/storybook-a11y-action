@@ -9,8 +9,6 @@ const os = require("os");
 const opts = ['--no-sandbox', '--disable-setuid-sandbox'];
 const localhost = core.getInput('directory');
 
-console.log(localhost);
-
 if (!localhost) {
   core.warning('Directory was not set');
 }
@@ -34,6 +32,7 @@ const getChromePath = () => {
 }
 
 const unknownError = (e) => {
+  console.log(e);
   const message = 'Something went wrong, please make sure storybook is running or is pointed to the right location.';
   console.error(message.red);
   core.setFailed(message);
@@ -103,6 +102,10 @@ const getStories = async (browser, components) => {
   const cluster = await Cluster.launch({
     concurrency: Cluster.CONCURRENCY_CONTEXT,
     maxConcurrency: 10,
+    puppeteerOptions: {
+      executablePath: getChromePath()
+    },
+    puppeteer
   });
 
   const allStories = stories.reduce((all, value) => {
