@@ -10780,6 +10780,8 @@ const os = __webpack_require__(87);
 const opts = ['--no-sandbox', '--disable-setuid-sandbox'];
 const localhost = `${process.env.GITHUB_WORKSPACE}/${core.getInput('directory')}`;
 
+console.log(localhost);
+
 if (!localhost) {
   core.warning('Directory was not set');
 }
