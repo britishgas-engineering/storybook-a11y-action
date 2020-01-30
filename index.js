@@ -4,11 +4,10 @@ const { Cluster } = require('puppeteer-cluster');
 const axeCore = require('axe-core');
 const colors = require('colors');
 const path = require('path');
-const io = require("@actions/io");
 const os = require("os");
 
 const opts = ['--no-sandbox', '--disable-setuid-sandbox'];
-const localhost = core.getInput('directory');
+const localhost = `${process.env.GITHUB_WORKSPACE}/${core.getInput('directory')}`;
 
 if (!localhost) {
   core.warning('Directory was not set');
@@ -33,8 +32,9 @@ const getChromePath = () => {
 }
 
 const unknownError = (e) => {
-  console.error('Something went wrong, please make sure storybook is running or is pointed to the right location.'.red);
-  console.error(e);
+  const message = 'Something went wrong, please make sure storybook is running or is pointed to the right location.';
+  console.error(message.red);
+  core.setFailed(message);
   process.exit(1);
 }
 
