@@ -4,6 +4,8 @@ const { Cluster } = require('puppeteer-cluster');
 const axeCore = require('axe-core');
 const colors = require('colors');
 const path = require('path');
+const io = require("@actions/io");
+const os = require("os");
 
 const opts = ['--no-sandbox', '--disable-setuid-sandbox'];
 const localhost = core.getInput('directory');
