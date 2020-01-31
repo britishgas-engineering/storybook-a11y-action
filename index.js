@@ -114,7 +114,7 @@ const getStories = async (browser, components) => {
 
   await cluster.task(async ({ page, data }) => {
     const {url} = data;
-
+    console.log(url);
     try {
 
       await page.goto(url, {waitUntil:  'networkidle2'});
