@@ -14520,7 +14520,6 @@ const os = __webpack_require__(87);
 const opts = ['--no-sandbox', '--disable-setuid-sandbox'];
 const localhost = `file://${process.env.GITHUB_WORKSPACE}${core.getInput('directory')}`;
 
-console.log(localhost);
 if (!localhost) {
   core.warning('Directory was not set');
 }
@@ -14638,6 +14637,8 @@ const getStories = async (browser, components) => {
     	`);
 
       const results = await handle.jsonValue();
+
+      console.log(JSON.stringify(results));
 
       await handle.dispose();
       await page.close();
