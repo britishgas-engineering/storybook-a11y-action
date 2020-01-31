@@ -1,7 +1,7 @@
 const core = require('@actions/core');
 const puppeteer = require('puppeteer-core');
 const { Cluster } = require('puppeteer-cluster');
-const axeCore = require('axe-core');
+const { AxePuppeteer } = require('axe-puppeteer');
 const colors = require('colors');
 const path = require('path');
 const os = require("os");
@@ -22,6 +22,8 @@ const getChromePath = () => {
     browserPath = path.join(programFiles, "Google/Chrome/Application/chrome.exe");
   } else if (os.type() === "Linux") {
     browserPath = "/usr/bin/google-chrome";
+  } else {
+    browserPath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
   }
 
   if (browserPath && browserPath.length > 0) {
@@ -103,6 +105,7 @@ const getStories = async (browser, components) => {
     concurrency: Cluster.CONCURRENCY_CONTEXT,
     maxConcurrency: 10,
     puppeteerOptions: {
+      args: opts,
       executablePath: getChromePath()
     },
     puppeteer
@@ -114,22 +117,12 @@ const getStories = async (browser, components) => {
 
   await cluster.task(async ({ page, data }) => {
     const {url} = data;
-    console.log(url);
-    try {
 
+    try {
       await page.goto(url, {waitUntil:  'networkidle2'});
 
-      const handle = await page.evaluateHandle(`
-        const wrapper = document.getElementById('root');
-    		${axeCore.source}
-    		axe.run(wrapper)
-    	`);
+      const results = await new AxePuppeteer(page).include('#root').analyze();
 
-      const results = await handle.jsonValue();
-
-      console.log(JSON.stringify(results));
-
-      await handle.dispose();
       await page.close();
 
       if (results.violations.length < 1) {
@@ -142,6 +135,8 @@ const getStories = async (browser, components) => {
       });
 
     } catch (err) {
+      console.log(err);
+      core.setFailed('Page failed to load');
       throw err;
     }
   });

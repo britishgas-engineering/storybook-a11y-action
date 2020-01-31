@@ -4,7 +4,7 @@ inputs:
   directory:
     description: 'Location of iframe.html'
     required: true
-    default: 'dist/demo/iframe.html'
+    default: '/dist/demo/iframe.html'
 runs:
   using: 'node12'
   main: 'dist/index.js'
