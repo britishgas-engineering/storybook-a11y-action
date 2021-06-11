@@ -10,5 +10,5 @@
 ## Build
 
 ```
-$ ncc build index.js
+$ npm run build
 ```
