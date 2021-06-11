@@ -1,13 +1,13 @@
 const core = require('@actions/core');
-const puppeteer = require('puppeteer-core');
+const puppeteer = require('playwright');
 const { Cluster } = require('puppeteer-cluster');
-const { AxePuppeteer } = require('axe-puppeteer');
-const colors = require('colors');
+const { AxePuppeteer } = require('@axe-core/puppeteer');
 const path = require('path');
 const os = require("os");
 
 const opts = ['--no-sandbox', '--disable-setuid-sandbox'];
-const localhost = `file://${process.env.GITHUB_WORKSPACE}${core.getInput('directory')}`;
+// const localhost = `file://${process.env.GITHUB_WORKSPACE}${core.getInput('directory')}`;
+const localhost = `file:///Users/pro/Documents/projects/british-gas/nucleus/dist/demo/iframe.html`;
 
 if (!localhost) {
   core.warning('Directory was not set');
@@ -51,9 +51,9 @@ const logger = (story, violation) => {
       `
       ${name}
       `.cyan,
-      `  ${violation.description}\n`.red,
-      `  Please check:`.red, `${violation.helpUrl}\n`.red,
-      `  ${violation.nodes[0].failureSummary}`.red
+      `  ${description}\n`.red,
+      `  Please check:`.red, `${helpUrl}\n`.red,
+      `  ${nodes[0].failureSummary}`.red
     );
   } else {
     console.log(
@@ -66,10 +66,15 @@ const logger = (story, violation) => {
 };
 
 const getStorybook = async (browser, url) => {
-  const page = await browser.newPage();
+  const context = await browser.newContext();
+  const page = await context.createIncognitoBrowserContext();
 
   await page.goto(url, {
     waitUntil: 'networkidle2'
+  }).catch((e) => {
+    console.log(e);
+    core.setFailed(message);
+    process.exit(1);
   });
 
   const evaluate = await page.evaluate('__STORYBOOK_CLIENT_API__.getStorybook()');
@@ -78,7 +83,7 @@ const getStorybook = async (browser, url) => {
   return evaluate;
 };
 
-const getStories = async (browser, components) => {
+const getStories = async (components) => {
   return components.map((component) => {
     const kind = component.kind;
 
@@ -94,9 +99,9 @@ const getStories = async (browser, components) => {
 };
 
 (async () => {
-  const browser = await puppeteer.launch({args: opts, executablePath: getChromePath()}).catch((e) => unknownError(e));
+  const browser = await puppeteer['chromium'].launch({args: opts, executablePath: getChromePath()}).catch((e) => unknownError(e));
   const components = await getStorybook(browser, localhost).catch((e) => unknownError(e));
-  const stories = await getStories(browser, components);
+  const stories = await getStories(components);
   let errors = [];
 
   await browser.close();
@@ -108,7 +113,7 @@ const getStories = async (browser, components) => {
       args: opts,
       executablePath: getChromePath()
     },
-    puppeteer
+    puppeteer: puppeteer['chromium']
   });
 
   const allStories = stories.reduce((all, value) => {
@@ -119,7 +124,11 @@ const getStories = async (browser, components) => {
     const {url} = data;
 
     try {
-      await page.goto(url, {waitUntil:  'networkidle2'});
+      await page.goto(url, { waitUntil: 'networkidle2' }).catch((e) => {
+        console.log(e);
+        core.setFailed(message);
+        process.exit(1);
+      });
 
       const results = await new AxePuppeteer(page).include('#root').analyze();
 
